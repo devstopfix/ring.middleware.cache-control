@@ -1,4 +1,4 @@
-(defproject ring.middleware.cache-control "0.1.0"
+(defproject ring.middleware.cache-control "0.2.0"
   :description "Ring middleware for cache control of resources in a REST architecture."
   :url "https://github.com/devstopfix/ring.middleware.cache-control"
   :min-lein-version "2.0.0"

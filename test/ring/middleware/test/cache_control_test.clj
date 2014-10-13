@@ -4,30 +4,32 @@
             [ring.mock.request :as mock]))
 
 (defn- assert-max-age-cache-control
+  "Assert we have a Cache-Control header, and optionally
+   that it has a certain max-age value."
   ([response]
     (->>
       (get-in response [:headers "Cache-Control"] "")
       (re-matches #"max-age=(\d+)")
       (last)))
-  ([response expected]
-    (= expected
+  ([response expected-maxage]
+    (= expected-maxage
       (Integer/parseInt (assert-max-age-cache-control response)))))
 
 (def app-200
   (->
     (fn [_] {:status 200 :headers {} :body "OK"})
-    (cache-control-max-age)))
+    (cache-control-max-age {200 (* 60 60)})))
 
 (deftest test-add-directives
   (testing "add max-age"
     (let [response (app-200 (mock/request :get ""))]
       (is
-        (assert-max-age-cache-control response)))))
+        (assert-max-age-cache-control response 3600)))))
 
 (def app-418
   (->
     (fn [_] {:status 418 :headers {} :body "Teapot"})
-    (cache-control-max-age)))
+    (cache-control-max-age {400 0})))
 
 (deftest test-do-not-add-directives
   (testing "do not add for unparameterized status code"
@@ -38,12 +40,12 @@
 (def app-200-age
   (->
     (fn [_] {:status 200 :headers {"Cache-Control" "max-age=999"} :body "OK"})
-    (cache-control-max-age)))
+    (cache-control-max-age {200 360})))
 
 (def app-200-expires
   (->
     (fn [_] {:status 200 :headers {"Expires" "tomorrow"} :body "OK"})
-    (cache-control-max-age)))
+    (cache-control-max-age {200 360})))
 
 (deftest test-pass-through
   (testing "don't add if we have max-age"

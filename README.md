@@ -11,15 +11,13 @@ Check out this project and run:
 
 Then add the following dependency to your `project.clj`:
 
-    [ring.middleware.cache-control "0.1.0"]
+    [ring.middleware.cache-control "0.2.0"]
 
 ## Documentation
 
 This middleware appends a [Cache-Control][3] [max-age][4] directive 
 to the response. The age is expressed in seconds and parameterized
 via a map of status code to age.
-
-TODO - the map is hard-coded in v0.1.0
 
 ## Using
 
@@ -28,7 +26,7 @@ TODO - the map is hard-coded in v0.1.0
 
 (def app
   (-> app-routes
-    (cache-control-max-age)
+    (cache-control-max-age {200 (* 60 60))
     ...))
 ```
 
