@@ -7,11 +7,11 @@ ring.middleware.cache-control
 
 Check out this project and run:
 
-   lein install
+    lein install
 
 Then add the following dependency to your `project.clj`:
 
-    [ring.middleware.cache-control "0.2.0"]
+    [ring.middleware.cache-control "1.0.0"]
 
 ## Documentation
 
@@ -19,7 +19,7 @@ This middleware appends a [Cache-Control][3] [max-age][4] directive
 to the response. The age is expressed in seconds and parameterized
 via a map of status code to age.
 
-## Using
+### Add the middleware to your App
 
 ```clojure
 (use '[ring.middleware.cache-control :only [cache-control-max-age]])
@@ -30,13 +30,30 @@ via a map of status code to age.
     ...))
 ```
 
-appends this header for a 200 response:
+appends 1 one-hour header for a 200 response:
 
 ```
+...
 Cache-Control:max-age=3600
 ```
 
-## License
+### Distribute the load
+
+There is a second middleware provided called ```cache-control-max-age-perturbed``` 
+ which applies a normal-distribution to the cache age parameter value. It
+ can help spread the load on a heavily utilized resource.
+ 
+These histograms show the variation for 1 minutes, 1 hour and 1 day:
+
+![1 minute](https://github.com/devstopfix/ring.middleware.cache-control/raw/master/docs/1-minute.png "1 Minute")
+
+![1 hour](https://github.com/devstopfix/ring.middleware.cache-control/raw/master/docs/1-hour.png "1 Hour")
+
+![1 day](https://github.com/devstopfix/ring.middleware.cache-control/raw/master/docs/24-hours.png "1 Day")
+
+[Source code of histograms](docs/histograms.md)
+
+# License
 
 Copyright © 2014 J Every
 

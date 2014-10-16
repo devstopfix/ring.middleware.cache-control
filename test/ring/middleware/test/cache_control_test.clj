@@ -58,3 +58,27 @@
       (is
         (not
           (assert-max-age-cache-control response ))))))
+
+
+; Test that our standard age is varied
+; Note there is a very rare change this case
+; will fail if the age is perturbed by zero.
+; In this case just re-run...
+
+(def app-200-perturbed
+  (->
+    (fn [_] {:status 200 :headers {} :body "OK"})
+    (cache-control-max-age-perturbed {200 31536000})))
+
+(deftest test-perturbed-age
+  (testing "add max-age with purterbed value"
+    (let [response (app-200-perturbed (mock/request :get ""))
+          age      (Integer/parseInt
+                     (assert-max-age-cache-control response))]
+      (is
+        (>=   age 22075200))
+      (is
+        (not= age 31536000))
+      (is
+        (<=   age 40996800)))))
+
