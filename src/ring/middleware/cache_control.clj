@@ -10,6 +10,9 @@
     (get-in response [:headers http-expires])))
 
 (defn- cache-control-max-age-handler [handler get-status-age]
+  "Excutes the handler. The second argument is a function
+   that accepts an HTTP status code (Integer) and returns
+   max-age in seconds or nil."
   (fn [request]
     (let [response (handler request)
           status (get response :status 0)
@@ -22,7 +25,9 @@
   "Middleware excutes the handler and if the response does not
    have any Cache-Control or Expires directives, and the status code
    exists in the given status-age map, then a 'Cache-Control: max-age'
-   header is added to the response with the duration given in the map."
+   header is added to the response with the duration given in the map.
+   Second parameter is a map of HTTP status codes to age in seconds
+   e.g. {200 60, 404 3600}"
   (cache-control-max-age-handler
     handler
     (partial get status-age)))
@@ -32,7 +37,7 @@
    based on a normal distribution."
   (let [rnd (java.util.Random.)]
     (fn [x]
-      (when [x]
+      (when x
         (if (<= x 4)
           x
           (let [σ (* x 0.0625 (.nextGaussian rnd))]
@@ -43,7 +48,9 @@
    have any Cache-Control or Expires directives, and the status code
    exists in the given status-age map, then a 'Cache-Control: max-age'
    header is added to the response with a duration calculated by a
-   normal distribtion around the value given in the map."
+   normal distribtion around the value given in the map.
+   Second parameter is a map of HTTP status codes to age in seconds
+   e.g. {200 60, 404 3600}"
   (cache-control-max-age-handler
     handler
     (comp (perturb-fn) (partial get status-age))))

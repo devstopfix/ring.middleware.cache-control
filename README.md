@@ -11,7 +11,7 @@ Check out this project and run:
 
 Then add the following dependency to your `project.clj`:
 
-    [ring.middleware.cache-control "1.0.0"]
+    [ring.middleware.cache-control "1.1"]
 
 ## Documentation
 

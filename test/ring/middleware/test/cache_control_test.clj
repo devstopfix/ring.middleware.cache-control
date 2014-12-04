@@ -15,16 +15,18 @@
     (= expected-maxage
       (Integer/parseInt (assert-max-age-cache-control response)))))
 
-(def app-200
+
+(def app-200-aged
   (->
     (fn [_] {:status 200 :headers {} :body "OK"})
     (cache-control-max-age {200 (* 60 60)})))
 
 (deftest test-add-directives
   (testing "add max-age"
-    (let [response (app-200 (mock/request :get ""))]
+    (let [response (app-200-aged (mock/request :get ""))]
       (is
         (assert-max-age-cache-control response 3600)))))
+
 
 (def app-418
   (->
@@ -36,6 +38,7 @@
     (let [response (app-418 (mock/request :get ""))]
       (is
         (= {} (:headers response))))))
+
 
 (def app-200-age
   (->
@@ -82,3 +85,14 @@
       (is
         (<=   age 40996800)))))
 
+
+(def app-200-without-age
+  (->
+    (fn [_] {:status 200 :headers {} :body "OK"})
+    (cache-control-max-age-perturbed {400 0})))
+
+(deftest test-nothing-changes-if-status-not-in-age-map
+  (testing "NullPointer bug - tried to perturb nil"
+    (let [response (app-200-without-age (mock/request :get ""))]
+      (is
+        (= {} (:headers response))))))
